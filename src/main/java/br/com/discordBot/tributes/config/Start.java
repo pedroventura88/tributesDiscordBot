@@ -24,11 +24,6 @@ public class Start extends ListenerAdapter {
 
     private static String AUTHOR = "";
 
-//    public static void jdaBuilder () throws LoginException {
-//        JDA jda = JDABuilder.createDefault("NzU0NDM2MTg2MjQzODU4NTgz.X10tcw.ysbomA4KHysWJtnOkU5PxMkSvgw").build();
-//        jda.addEventListener(new Start());
-//    }
-
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 
