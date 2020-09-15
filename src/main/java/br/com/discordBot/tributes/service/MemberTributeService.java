@@ -45,6 +45,7 @@ public class MemberTributeService {
             member.setId(processJsonFromApi().getJSONObject(i).getString("Id"));
             member.setGuildName(processJsonFromApi().getJSONObject(i).getString("GuildName"));
             member.setName(processJsonFromApi().getJSONObject(i).getString("Name"));
+            //TODO DESMEMBRAR A GATHERING E LIFETIMESTATISTICS, SEPARAR CADA UMA EM UMA SERVICE E INJETA-LAS NESTA SERVICE
             Gathering gathering = buidingGathering(i);
             member.setLifetimeStatistics(new LifetimeStatistics(gathering, LocalDateTime.now()));
             listOfMemberTribute.add(member);
