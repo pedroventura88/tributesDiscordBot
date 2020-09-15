@@ -23,7 +23,7 @@ public class TributesApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         try {
-            JDA jda = JDABuilder.createDefault("NzU0NDM2MTg2MjQzODU4NTgz.X10tcw.ysbomA4KHysWJtnOkU5PxMkSvgw").build();
+            JDA jda = JDABuilder.createDefault("xxxxxxxxxxxxxxxxxxxTOKENxxxxxxxxxxxxxxxxxxxx").build();
             jda.addEventListener(inicio);
         } catch (LoginException e) {
             e.printStackTrace();
