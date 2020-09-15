@@ -28,6 +28,9 @@ public class MemberTributeService {
     @Autowired
     GatheringService gatheringService;
 
+    @Autowired
+    LifetimeStatisticsService lifetimeStatisticsService;
+
     public JSONArray processJsonFromApi() {
         JSONArray jsonArray = new JSONArray(ConectaApiAlbion.loadTributes());
         return jsonArray;
@@ -40,20 +43,17 @@ public class MemberTributeService {
         for (int i = 0; i < processJsonFromApi().length(); i++) {
 
             /** Criando um novo Gathering, e salvando no banco **/
-//            GatheringService gatheringService = new GatheringService();
             Gathering gathering = gatheringService.buildingGatheringTributes(i);
 
             /** Criando novo LifeTimeStatistics, e salvando no banco **/
+            LifetimeStatistics lifetimeStatistics = lifetimeStatisticsService.buildingLifetimeStatistics(gathering);
 
-
-
+            /** Criando MemberTribute  **/
             MemberTribute member = new MemberTribute();
             member.setId(processJsonFromApi().getJSONObject(i).getString("Id"));
             member.setGuildName(processJsonFromApi().getJSONObject(i).getString("GuildName"));
             member.setName(processJsonFromApi().getJSONObject(i).getString("Name"));
-            //TODO DESMEMBRAR A GATHERING E LIFETIMESTATISTICS, SEPARAR CADA UMA EM UMA SERVICE E INJETA-LAS NESTA SERVICE
-//            Gathering gathering = buidingGathering(i);
-            member.setLifetimeStatistics(new LifetimeStatistics(gathering, LocalDateTime.now()));
+            member.setLifetimeStatistics(lifetimeStatistics);
             listOfMemberTribute.add(member);
             memberTributeRepository.save(member);
             System.out.println("Salvando o membro: " + member.getName());
@@ -63,18 +63,4 @@ public class MemberTributeService {
         return listOfMemberTribute;
     }
 
-//    public Gathering buidingGathering(int i) {
-//        Gathering gathering = new Gathering();
-//        JSONObject PATH_TO_GATHERING = processJsonFromApi()
-//                .getJSONObject(i)
-//                .getJSONObject("LifetimeStatistics")
-//                .getJSONObject("Gathering");
-//
-//        gathering.setTotalFibe(PATH_TO_GATHERING.getJSONObject("Fiber").getLong("Total"));
-//        gathering.setTotalHide(PATH_TO_GATHERING.getJSONObject("Hide").getLong("Total"));
-//        gathering.setTotalOre(PATH_TO_GATHERING.getJSONObject("Ore").getLong("Total"));
-//        gathering.setTotalRock(PATH_TO_GATHERING.getJSONObject("Rock").getLong("Total"));
-//        gathering.setTotalWood(PATH_TO_GATHERING.getJSONObject("Wood").getLong("Total"));
-//        return gathering;
-//    }
 }
