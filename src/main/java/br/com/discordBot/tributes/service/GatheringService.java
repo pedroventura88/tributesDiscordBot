@@ -22,13 +22,9 @@ public class GatheringService {
         this.gatheringRepository = gatheringRepository;
     }
 
-    public JSONArray processJsonFromApi() {
-        return new JSONArray(ConectaApiAlbion.loadTributes());
-    }
-
-    public Gathering buildingGatheringTributes(int i) {
+    public Gathering buildingGatheringTributes(int i, JSONArray jsonArray, boolean update) {
         Gathering gathering = new Gathering();
-        JSONObject PATH_TO_GATHERING = processJsonFromApi()
+        JSONObject PATH_TO_GATHERING = jsonArray
                 .getJSONObject(i)
                 .getJSONObject("LifetimeStatistics")
                 .getJSONObject("Gathering");
@@ -38,7 +34,11 @@ public class GatheringService {
         gathering.setTotalOre(PATH_TO_GATHERING.getJSONObject("Ore").getLong("Total"));
         gathering.setTotalRock(PATH_TO_GATHERING.getJSONObject("Rock").getLong("Total"));
         gathering.setTotalWood(PATH_TO_GATHERING.getJSONObject("Wood").getLong("Total"));
-        gatheringRepository.save(gathering);
+
+        if (update) {
+            gatheringRepository.save(gathering);
+        }
+
         return gathering;
     }
 }

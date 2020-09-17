@@ -20,11 +20,15 @@ public class LifetimeStatisticsService {
         this.repository = repository;
     }
 
-    public LifetimeStatistics buildingLifetimeStatistics (Gathering gathering) {
+    public LifetimeStatistics buildingLifetimeStatistics(Gathering gathering, boolean update) {
         LifetimeStatistics lifetimeStatistics = new LifetimeStatistics();
         lifetimeStatistics.setGathering(gathering);
         lifetimeStatistics.setTimestamp(LocalDateTime.now());
-        repository.save(lifetimeStatistics);
+
+        if (update) {
+            repository.save(lifetimeStatistics);
+        }
+
         return lifetimeStatistics;
     }
 }

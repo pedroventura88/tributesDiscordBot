@@ -1,16 +1,20 @@
 package br.com.discordBot.tributes.config;
 
 
+import br.com.discordBot.tributes.entity.Gathering;
 import br.com.discordBot.tributes.entity.MemberTribute;
 import br.com.discordBot.tributes.service.MemberTributeService;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Component
 @NoArgsConstructor
 public class Start extends ListenerAdapter {
@@ -23,35 +27,51 @@ public class Start extends ListenerAdapter {
     }
 
     private static String AUTHOR = "";
+    private static boolean PREFIX;
+    private static String MESSAGE = "";
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 
-        AUTHOR = event.getAuthor().getName();
+        AUTHOR = event.getAuthor().getName().split(" ")[0];
+        PREFIX = event.getMessage().getContentRaw().startsWith("/bot");
+        MESSAGE = event.getMessage().getContentRaw().toLowerCase();
+
+        List<MemberTribute> listMemberTribute;
         if (event.getAuthor().isBot()) return;
-        if (event.getMessage().getContentRaw().startsWith("/bot")) {
-            if (event.getMessage().getContentRaw().toLowerCase().contains("tributos")) {
+        if (PREFIX && MESSAGE.contains("tributos")) {
 
-                event.getChannel().sendMessage("Eai " + AUTHOR + ", só de boas? ").queue();
+            event.getChannel().sendMessage("Olá " + AUTHOR + ", aguarde um pouco até a lista ser processada. ")
+                    .queue();
 
-                List<MemberTribute> listMemberTribute = service.buildListOfTributes();
+            listMemberTribute = service.buildListOfTributes(false);
+            LocalDateTime now = LocalDateTime.now();
+            for (int i = 0; i < listMemberTribute.size(); i++) {
 
-                for (int i = 0; i < listMemberTribute.size(); i++) {
-                    event.getChannel().sendMessage("-------------------\n" + "Nome: " + listMemberTribute.get(i).getName() +
-                            "\nTotal Fiber: " + listMemberTribute.get(i).getLifetimeStatistics().getGathering().getTotalFibe() +
-                            "\nTotal Ore: " + listMemberTribute.get(i).getLifetimeStatistics().getGathering().getTotalOre() +
-                            "\n Total Wood: " + listMemberTribute.get(i).getLifetimeStatistics().getGathering().getTotalWood() +
-                            "\n Total Rock: " + listMemberTribute.get(i).getLifetimeStatistics().getGathering().getTotalRock() +
-                            "\n Total Hide: " + listMemberTribute.get(i).getLifetimeStatistics().getGathering().getTotalHide())
-                            .queue();
-                }
+                Gathering gathering = listMemberTribute.get(i).getLifetimeStatistics().getGathering();
 
-            } else {
-                event.getChannel().sendMessage("Opa..  " + AUTHOR.split("")[0] + ", não reconheci seu comando." +
-                        "\n tenta utilizar /bot antes! ").queue();
+                event.getChannel().sendMessage("-------------------\n" + "Nome: " + listMemberTribute.get(i).getName() +
+                        " | Fiber: " + gathering.getTotalFibe() +
+                        " | Ore: " + gathering.getTotalOre() +
+                        " | Wood: " + gathering.getTotalWood() +
+                        " | Rock: " + gathering.getTotalRock() +
+                        " | Hide: " + gathering.getTotalHide())
+                        .queue();
             }
-        }
+            System.out.println("Started at: " + now + " | Finished at: " + LocalDateTime.now());
 
+        } else if (PREFIX && MESSAGE.contains("tributos") && MESSAGE.contains("atualizar")) {
+
+            listMemberTribute = service.buildListOfTributes(true);
+
+            event.getChannel().sendMessage("Sua lista foi atualizada, e possui " + listMemberTribute.size() +
+                    " registros.");
+
+        } else {
+            event.getChannel().sendMessage(AUTHOR + ", não reconheci seu comando.").queue();
+        }
     }
 
 }
+
+
