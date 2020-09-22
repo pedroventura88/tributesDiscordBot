@@ -1,6 +1,7 @@
 package br.com.discordBot.tributes.service;
 
 import br.com.discordBot.tributes.config.ConectaApiAlbion;
+import br.com.discordBot.tributes.entity.Donations;
 import br.com.discordBot.tributes.entity.Gathering;
 import br.com.discordBot.tributes.entity.LifetimeStatistics;
 import br.com.discordBot.tributes.entity.MemberTribute;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.NoResultException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,21 +68,26 @@ public class MemberTributeService {
                     DataUtils.convertLocalDateToString(LocalDate.now().minusDays(1)));
 
             if (lastWeekTributesList.size() > 0) {
-                boolean idFound = false;
                 for (MemberTribute atual : actualTributesList) {
                     for (MemberTribute lastWeek : lastWeekTributesList) {
+                        Donations donations = new Donations();
+
                         if (lastWeek.getId().equals(atual.getId())) {
-                            idFound = true;
-                            System.out.println(atual.getName() + " - already exists - "
-                                    + DataUtils.convertLocalDateToDateBr(lastWeek.getLifetimeStatistics().getTimestamp()));
+
+                            if (lastWeek.getLifetimeStatistics().getGathering().getTotalFibe() <
+                                    atual.getLifetimeStatistics().getGathering().getTotalFibe()) {
+                            }
+
+                        } else {
+                            System.out.println("LASTWEEK NAME: " + lastWeek.getName() + " | ATUAL NAME: " + atual.getName());
                         }
                     }
-                    if (!idFound) {
-                        System.out.println(" ### " + atual.getName() + " - new member add at - "
-                                + DataUtils.convertLocalDateToDateBr(atual.getLifetimeStatistics().getTimestamp()));
-                    }
-                    idFound = false;
                 }
+
+            } else if (lastWeekTributesList.size() == 0){
+                throw new NoResultException("There isn't record to process at last week");
+            } else if (actualTributesList.size() == 0) {
+                throw new NoResultException("There isn't record to process today");
             }
 
             listOfMemberTribute.add(member);

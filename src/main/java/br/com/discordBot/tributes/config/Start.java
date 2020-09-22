@@ -4,6 +4,7 @@ package br.com.discordBot.tributes.config;
 import br.com.discordBot.tributes.entity.Gathering;
 import br.com.discordBot.tributes.entity.MemberTribute;
 import br.com.discordBot.tributes.service.MemberTributeService;
+import br.com.discordBot.tributes.util.DataUtils;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -39,35 +40,38 @@ public class Start extends ListenerAdapter {
 
         List<MemberTribute> listMemberTribute;
         if (event.getAuthor().isBot()) return;
-        if (PREFIX && MESSAGE.contains("tributos")) {
 
-            event.getChannel().sendMessage("Olá " + AUTHOR + ", aguarde um pouco até a lista ser processada. ")
-                    .queue();
-
-            listMemberTribute = service.buildListOfTributes(false);
-            LocalDateTime now = LocalDateTime.now();
-            for (int i = 0; i < listMemberTribute.size(); i++) {
-
-                Gathering gathering = listMemberTribute.get(i).getLifetimeStatistics().getGathering();
-
-                event.getChannel().sendMessage("-------------------\n" + "Nome: " + listMemberTribute.get(i).getName() +
-                        " | Fiber: " + gathering.getTotalFibe() +
-                        " | Ore: " + gathering.getTotalOre() +
-                        " | Wood: " + gathering.getTotalWood() +
-                        " | Rock: " + gathering.getTotalRock() +
-                        " | Hide: " + gathering.getTotalHide())
-                        .queue();
-            }
-            System.out.println("Started at: " + now + " | Finished at: " + LocalDateTime.now());
-
-        } else if (PREFIX && MESSAGE.contains("tributos") && MESSAGE.contains("atualizar")) {
+        if (PREFIX && MESSAGE.contains("tributos") && MESSAGE.contains("atualizar")) {
 
             listMemberTribute = service.buildListOfTributes(true);
 
             event.getChannel().sendMessage("Sua lista foi atualizada, e possui " + listMemberTribute.size() +
-                    " registros.");
+                    " registros.").queue();
 
-        } else {
+        } else if (PREFIX && MESSAGE.contains("tributos")) {
+
+            event.getChannel().sendMessage("Olá " + AUTHOR + ", aguarde um pouco até a lista ser processada. " +
+                    "Iniciando: " + DataUtils.convertLocalDateTimeToBRFull(LocalDateTime.now()))
+                    .queue();
+
+            listMemberTribute = service.buildListOfTributes(false);
+//            for (int i = 0; i < listMemberTribute.size(); i++) {
+//
+//                Gathering gathering = listMemberTribute.get(i).getLifetimeStatistics().getGathering();
+//
+//                event.getChannel().sendMessage("-------------------\n" + "Nome: " + listMemberTribute.get(i).getName() +
+//                        " | Fiber: " + gathering.getTotalFibe() +
+//                        " | Ore: " + gathering.getTotalOre() +
+//                        " | Wood: " + gathering.getTotalWood() +
+//                        " | Rock: " + gathering.getTotalRock() +
+//                        " | Hide: " + gathering.getTotalHide())
+//                        .queue();
+//            }
+
+            event.getChannel().sendMessage("Finalizado: " + DataUtils
+                    .convertLocalDateTimeToBRFull(LocalDateTime.now())).queue();
+
+        } else if (PREFIX && (!MESSAGE.contains("tributos")) && (!MESSAGE.contains("atualizar")) ){
             event.getChannel().sendMessage(AUTHOR + ", não reconheci seu comando.").queue();
         }
     }

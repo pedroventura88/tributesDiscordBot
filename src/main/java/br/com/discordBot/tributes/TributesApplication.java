@@ -1,6 +1,7 @@
 package br.com.discordBot.tributes;
 
 import br.com.discordBot.tributes.config.Start;
+import br.com.discordBot.tributes.enuns.EnumConfigurationDiscord;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -25,8 +26,7 @@ public class TributesApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         try {
-//            JDA jda = JDABuilder.createDefault("xxxxxxxxxxxxxxxxxxxTOKENxxxxxxxxxxxxxxxxxxxx").build();
-            JDA jda = JDABuilder.createDefault("NzU0NDM2MTg2MjQzODU4NTgz.X10tcw.LfseWun94nwp1RWYKdaRem-CCSs").build();
+            JDA jda = JDABuilder.createDefault(EnumConfigurationDiscord.DISCORD_TOKEN.getValue()).build();
             jda.addEventListener(start);
         } catch (LoginException e) {
             log.error(" ## Failed to login using specified credentials: ", e);
