@@ -6,6 +6,8 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Objects;
+
 @Slf4j
 @Configuration
 public class ConectaApiAlbion {
@@ -16,17 +18,16 @@ public class ConectaApiAlbion {
         return URL + guildId + "/members";
     }
 
-    public static String loadTributes() {
+    public static String loadTributes() throws UnirestException {
 
-        try {
-            Unirest.setTimeouts(240000, 240000);
-            HttpResponse<String> response = Unirest.get(getGuildId("eElTYLvuRpSGDipdZxjewA")).asString();
-            return response.getBody().toString();
+        Unirest.setTimeouts(240000, 240000);
+        HttpResponse<String> response = Unirest.get(getGuildId("eElTYLvuRpSGDipdZxjewA")).asString();
 
-        } catch (UnirestException e) {
-            log.error("Failed to load tributes from API: ", e);
-            return null;
+        if (Objects.isNull(response)) {
+            throw new UnirestException("Falha ao carregar os tributos da API");
         }
+        return response.getBody().toString();
 
     }
+
 }
