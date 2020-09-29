@@ -23,7 +23,7 @@ public class ConectaApiAlbion {
         Unirest.setTimeouts(240000, 240000);
         HttpResponse<String> response = Unirest.get(getGuildId("eElTYLvuRpSGDipdZxjewA")).asString();
 
-        if (Objects.isNull(response)) {
+        if (response.getStatus() != 200) {
             throw new UnirestException("Falha ao carregar os tributos da API");
         }
         return response.getBody().toString();

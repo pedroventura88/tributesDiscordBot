@@ -57,16 +57,14 @@ public class MemberTributeService {
             /** Criando MemberTribute  **/
             MemberTribute member = getMemberTribute(jsonArrayInMemory, i, lifetimeStatistics, update);
 
-            List<MemberTribute> actualTributesList;
-            List<MemberTribute> lastWeekTributesList;
-
-            actualTributesList = memberTributeRepository.findMemberTributeById(member.getId(),
-                    DataUtils.convertLocalDateToString(LocalDate.now()));
-
-            lastWeekTributesList = memberTributeRepository.findMemberTributeById(member.getId(),
-                    DataUtils.convertLocalDateToString(LocalDate.now().minusDays(1)));
-
-            List<Donations> donations = donationsService.creatingDonations(actualTributesList, lastWeekTributesList);
+//            List<MemberTribute> actualTributesList;
+//            List<MemberTribute> lastWeekTributesList;
+//
+//            actualTributesList = memberTributeRepository.findMemberTributeById(member.getId(),
+//                    DataUtils.convertLocalDateToString(LocalDate.now().minusDays(1)));
+//
+//            lastWeekTributesList = memberTributeRepository.findMemberTributeById(member.getId(),
+//                    DataUtils.convertLocalDateToString(LocalDate.now().minusDays(2)));
 
             /** OPS.. Qual lista passar aqui?? acho que deve ser doações..**/
             listOfMemberTribute.add(member);

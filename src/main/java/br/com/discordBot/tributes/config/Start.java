@@ -1,14 +1,18 @@
 package br.com.discordBot.tributes.config;
 
 
+import br.com.discordBot.tributes.entity.Donations;
 import br.com.discordBot.tributes.entity.MemberTribute;
+import br.com.discordBot.tributes.service.DonationsService;
 import br.com.discordBot.tributes.service.FirstRegisterService;
 import br.com.discordBot.tributes.service.MemberTributeService;
+import br.com.discordBot.tributes.util.CreateFileUtils;
 import br.com.discordBot.tributes.util.DataUtils;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.json.JSONArray;
@@ -16,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.NoResultException;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,12 +35,15 @@ public class Start extends ListenerAdapter {
 
     FirstRegisterService firstRegisterService;
 
+    DonationsService donationsService;
+
     JSONArray jsonArrayInMemory;
 
     @Autowired
-    public Start(MemberTributeService service, FirstRegisterService firstRegisterService) {
+    public Start(MemberTributeService service, FirstRegisterService firstRegisterService, DonationsService donationsService) {
         this.service = service;
         this.firstRegisterService = firstRegisterService;
+        this.donationsService = donationsService;
     }
 
     private static String AUTHOR = "";
@@ -55,10 +65,25 @@ public class Start extends ListenerAdapter {
         }
 
         List<MemberTribute> listMemberTribute;
+        List<List<List<Donations>>> listDonations;
         if (event.getAuthor().isBot()) return;
 
         if (PREFIX && MESSAGE.contains("primeiro insert")) {
             isFirstInsert(event);
+        }
+
+        if (PREFIX && MESSAGE.contains("html")) {
+            CreateFileUtils cfu = new CreateFileUtils();
+            try {
+
+                File file = cfu.writeToFile(cfu.openingHtmlFile(), cfu.createHtmlBody(), cfu.closingHtmlFile(),
+                        "doacoes" + DataUtils.convertLocalDateToDateBr(LocalDateTime.now()) + ".html");
+
+                event.getChannel()
+                        .sendMessage("Eis aqui teu arquivo: ").addFile(file).queue();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         if (PREFIX && MESSAGE.contains("tributos") && MESSAGE.contains("atualizar")) {
@@ -81,8 +106,26 @@ public class Start extends ListenerAdapter {
                     .queue();
 
             try {
+
                 listMemberTribute = service.buildListOfTributes(false, jsonArrayInMemory);
-                if (listMemberTribute.size() > 0) {
+
+                listDonations = donationsService.buildListOfDonations(jsonArrayInMemory);
+
+                if (listDonations.size() > 0) {
+                    if (MESSAGE.contains("donations")) {
+                        System.out.println("[ ");
+                        for (List<List<Donations>> list : listDonations) {
+                            for (List<Donations> d : list) {
+                                for (Donations donations : d) {
+                                    System.out.println("MEMBRO: " + donations.getMemberName() + " | RECURSO: " + donations.getResourceName() + " | TIPO ITEM: " + donations.getTypeItem() + " | VALOR DOADO: " + donations.getDonation());
+                                }
+
+                            }
+                            System.out.println("], ");
+                        }
+                        System.out.println("]");
+                    }
+
                     //            for (int i = 0; i < listMemberTribute.size(); i++) {
 //
 //                Gathering gathering = listMemberTribute.get(i).getLifetimeStatistics().getGathering();
@@ -110,7 +153,7 @@ public class Start extends ListenerAdapter {
             }
 
         } else if (PREFIX && (!MESSAGE.contains("tributos")) && (!MESSAGE.contains("atualizar"))
-                && (!MESSAGE.contains("primeiro insert"))) {
+                && (!MESSAGE.contains("primeiro insert")) && (!MESSAGE.contains("html"))) {
             event.getChannel().sendMessage(AUTHOR + ", não reconheci seu comando.").queue();
         }
     }

@@ -14,6 +14,7 @@ public class Donations {
 
     private Long id;
     private String memberName;
+    private Long memberId;
     private String resourceName;
     private Long differenceResource;
     private Integer donation;
